@@ -41,13 +41,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     await ProdutoBanco.instance.insertProduto(produto);
-    
+
     _nomeController.clear();
     _descricaoController.clear();
     _categoriaController.clear();
     _valorController.clear();
-    
-    Navigator.pop(context); // Fecha o modal
+
+    Navigator.pop(context);
     _carregarProdutos();
   }
 
@@ -63,7 +63,9 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (_) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
-          top: 16, left: 16, right: 16,
+          top: 16,
+          left: 16,
+          right: 16,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -112,7 +114,10 @@ class _HomeScreenState extends State<HomeScreen> {
             margin: const EdgeInsets.all(8),
             child: ListTile(
               title: Text(produto.nome),
-              subtitle: Text('${produto.categoria} - R\$ ${produto.valor.toStringAsFixed(2)}\n${produto.descricao}'),
+              subtitle: Text(
+                '${produto.categoria} - R\$ ${produto.valor.toStringAsFixed(2)}\n'
+                '${produto.descricao}',
+              ),
               isThreeLine: true,
               trailing: IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),

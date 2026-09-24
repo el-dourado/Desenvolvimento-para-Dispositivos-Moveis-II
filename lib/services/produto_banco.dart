@@ -18,10 +18,10 @@ class ProdutoBanco {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return openDatabase(path, version: 1, onCreate: _createDB);
   }
 
-  Future _createDB(Database db, int version) async {
+  Future<void> _createDB(Database db, int version) async {
     await db.execute('''
       CREATE TABLE produtos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +35,7 @@ class ProdutoBanco {
 
   Future<int> insertProduto(Produto produto) async {
     final db = await instance.database;
-    return await db.insert('produtos', produto.toMap());
+    return db.insert('produtos', produto.toMap());
   }
 
   Future<List<Produto>> getProdutos() async {
@@ -46,6 +46,6 @@ class ProdutoBanco {
 
   Future<int> deleteProduto(int id) async {
     final db = await instance.database;
-    return await db.delete('produtos', where: 'id = ?', whereArgs: [id]);
+    return db.delete('produtos', where: 'id = ?', whereArgs: [id]);
   }
 }
