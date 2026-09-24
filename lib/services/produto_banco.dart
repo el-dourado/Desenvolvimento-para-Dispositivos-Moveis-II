@@ -48,4 +48,6 @@ class ProdutoBanco {
     final db = await instance.database;
     return db.delete('produtos', where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<void> updateProduto(Produto produto) async {}
 }

@@ -30,22 +30,24 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _guardarProduto() async {
-    if (_nomeController.text.isEmpty || _valorController.text.isEmpty) return;
+  Future<void> _guardarProduto(int? idProduto) async {
+    if (_nomeController.text.isEmpty || _valorController.text.isEmpty) {
+      return;
+    }
 
     final produto = Produto(
+      id: idProduto,
       nome: _nomeController.text,
       descricao: _descricaoController.text,
       categoria: _categoriaController.text,
       valor: double.tryParse(_valorController.text) ?? 0.0,
     );
 
-    await ProdutoBanco.instance.insertProduto(produto);
-
-    _nomeController.clear();
-    _descricaoController.clear();
-    _categoriaController.clear();
-    _valorController.clear();
+    if (idProduto == null) {
+      await ProdutoBanco.instance.insertProduto(produto);
+    } else {
+      await ProdutoBanco.instance.updateProduto(produto);
+    }
 
     Navigator.pop(context);
     _carregarProdutos();
@@ -56,7 +58,19 @@ class _HomeScreenState extends State<HomeScreen> {
     _carregarProdutos();
   }
 
-  void _mostrarFormularioCadastro() {
+  void _mostrarFormulario([Produto? produtoExistente]) {
+    if (produtoExistente != null) {
+      _nomeController.text = produtoExistente.nome;
+      _descricaoController.text = produtoExistente.descricao;
+      _categoriaController.text = produtoExistente.categoria;
+      _valorController.text = produtoExistente.valor.toString();
+    } else {
+      _nomeController.clear();
+      _descricaoController.clear();
+      _categoriaController.clear();
+      _valorController.clear();
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -72,25 +86,35 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             TextField(
               controller: _nomeController,
-              decoration: const InputDecoration(labelText: 'Nome do Produto'),
+              decoration: const InputDecoration(
+                labelText: 'Nome do Produto',
+              ),
             ),
             TextField(
               controller: _descricaoController,
-              decoration: const InputDecoration(labelText: 'Descrição'),
+              decoration: const InputDecoration(
+                labelText: 'Descrição',
+              ),
             ),
             TextField(
               controller: _categoriaController,
-              decoration: const InputDecoration(labelText: 'Categoria'),
+              decoration: const InputDecoration(
+                labelText: 'Categoria',
+              ),
             ),
             TextField(
               controller: _valorController,
-              decoration: const InputDecoration(labelText: 'Valor'),
+              decoration: const InputDecoration(
+                labelText: 'Valor',
+              ),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _guardarProduto,
-              child: const Text('Guardar'),
+              onPressed: () => _guardarProduto(produtoExistente?.id),
+              child: Text(
+                produtoExistente == null ? 'Guardar' : 'Atualizar',
+              ),
             ),
             const SizedBox(height: 20),
           ],
@@ -110,6 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: _produtos.length,
         itemBuilder: (context, index) {
           final produto = _produtos[index];
+          
           return Card(
             margin: const EdgeInsets.all(8),
             child: ListTile(
@@ -119,16 +144,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 '${produto.descricao}',
               ),
               isThreeLine: true,
-              trailing: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () => _apagarProduto(produto.id!),
+              trailing: SizedBox(
+                width: 100,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.edit,
+                        color: Colors.orange,
+                      ),
+                      onPressed: () => _mostrarFormulario(produto),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      ),
+                      onPressed: () => _apagarProduto(produto.id!),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _mostrarFormularioCadastro,
+        onPressed: () => _mostrarFormulario(),
         child: const Icon(Icons.add),
       ),
     );
